@@ -4,6 +4,7 @@ import os
 import subprocess
 import json
 import datetime as dt
+import pandas as pd
 
 # variables
 # welcome the user
@@ -20,28 +21,26 @@ options = ['', op0, '', op1, op2, op3, op4, op5, '']
 json_name = 'test_bonus_balance.json'
 # time
 time = dt.datetime.now()
-time = str(time)
+time = str(time)[:-7]
 # trx type
 trx_type = ['withdrawal','deposit']
 # transaction format
-trx_new = {'index':0, 'time':'', 'type':'', 'amount':0.00, 'balance':0.00}
-trx_list = []
+trx_new = {'trx #':0, 'time':'', 'type':'', 'amount':0.00, 'balance':0.00}
 # app online
 online = True
 
-# functions
-def balance_json():
-    if os.path.exists(json_name) == False:
-        trx_new.update({'time':time})
-        trx_new.update({'type':'opened'})
-        trx_list = []
-        trx_list.append(trx_new)
-        with open(json_name, 'w') as f:
-            json.dump(trx_list, f)
-    else:
-        trx_list = json.load(open(json_name))
-    return
+# needed for functions
+if os.path.exists(json_name) == False:
+    trx_new.update({'time':time})
+    trx_new.update({'type':'opened'})
+    trx_list = []
+    trx_list.append(trx_new)
+    with open(json_name, 'w') as f:
+        json.dump(trx_list, f)
+trx_list = json.load(open(json_name))
 
+
+# functions
 def view_balance(file=json_name):
     bal = 0.00
     if len(trx_list) > 1:
@@ -66,12 +65,12 @@ def debit():
             print('Invalid amount! Please enter an amount.')
             continue
         break
-    trx_deb = trx_new
-    trx_deb['index'] = trx_deb.get('index') + 1
-    trx_deb.update({'time':time})
-    trx_deb.update({'type':'withdrawal'})
-    trx_deb.update({'amount':amount})
-    trx_deb['balance'] = trx_deb.get('balance') - amount
+    trx_new['trx #'] = trx_new.get('trx #') + 1
+    trx_new.update({'time':time})
+    trx_new.update({'type':'withdrawal'})
+    trx_new.update({'amount':amount})
+    trx_new['balance'] = trx_new.get('balance') - amount
+    trx_deb = trx_new.copy()
     trx_list.append(trx_deb)
     with open(json_name, 'w') as f:
         json.dump(trx_list, f)
@@ -92,21 +91,20 @@ def credit():
             print('Invalid amount! Please enter an amount.')
             continue
         break
-    trx_cred = trx_new
-    trx_cred['index'] = trx_cred.get('index') + 1
-    trx_cred.update({'time':time})
-    trx_cred.update({'type':'deposit'})
-    trx_cred.update({'amount':amount})
-    trx_cred['balance'] = trx_cred.get('balance') + amount
+    trx_new['trx #'] = trx_new.get('trx #') + 1
+    trx_new.update({'time':time})
+    trx_new.update({'type':'withdrawal'})
+    trx_new.update({'amount':amount})
+    trx_new['balance'] = trx_new.get('balance') + amount
+    trx_cred = trx_new.copy()
     trx_list.append(trx_cred)
-    print(trx_list)
     with open(json_name, 'w') as f:
         json.dump(trx_list, f)
     return
 
 def history():
-    hist = '\nTransaction history:'
-    return hist
+    history = pd.DataFrame(trx_list)
+    print(history)
 
 def goodbye():
     print('\nGoodbye! Have a nice day.\n')
@@ -116,7 +114,6 @@ def goodbye():
 # main code
 print('\n', greeting)
 while online == True:
-    balance_json()
     for op in options:
         print(op)
     choice = input('Your choice? ')
@@ -135,7 +132,9 @@ while online == True:
             credit()
             continue
         if choice == 4:
+            print('\nTransaction history:\n')
             history()
+            continue
         if choice == 5:
             goodbye()
     else:
