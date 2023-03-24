@@ -19,19 +19,19 @@ op5 = '5) exit'
 options = ['', op0, '', op1, op2, op3, op4, op5, '']
 # name of balance file
 json_name = 'test_bonus_balance.json'
-# time
-time = dt.datetime.now()
-time = str(time)[:-7]
+# time_open
+time_o = dt.datetime.now()
+time_o = str(time_o)[:-7]
 # trx type
 trx_type = ['withdrawal','deposit']
 # transaction format
-trx_new = {'trx #':0, 'time':'', 'type':'', 'amount':0.00, 'balance':0.00}
+trx_new = {'time':'', 'type':'', 'amount':0.00, 'balance':0.00}
 # app online
 online = True
 
 # needed for functions
 if os.path.exists(json_name) == False:
-    trx_new.update({'time':time})
+    trx_new.update({'time':time_o})
     trx_new.update({'type':'opened'})
     trx_list = []
     trx_list.append(trx_new)
@@ -41,6 +41,11 @@ trx_list = json.load(open(json_name))
 
 
 # functions
+def time():
+    time = dt.datetime.now()
+    time = str(time)[:-7]
+    return time
+
 def view_balance(file=json_name):
     bal = 0.00
     if len(trx_list) > 1:
@@ -65,8 +70,7 @@ def debit():
             print('Invalid amount! Please enter an amount.')
             continue
         break
-    trx_new['trx #'] = trx_new.get('trx #') + 1
-    trx_new.update({'time':time})
+    trx_new.update({'time':time()})
     trx_new.update({'type':'withdrawal'})
     trx_new.update({'amount':amount})
     trx_new['balance'] = trx_new.get('balance') - amount
@@ -91,9 +95,8 @@ def credit():
             print('Invalid amount! Please enter an amount.')
             continue
         break
-    trx_new['trx #'] = trx_new.get('trx #') + 1
-    trx_new.update({'time':time})
-    trx_new.update({'type':'withdrawal'})
+    trx_new.update({'time':time()})
+    trx_new.update({'type':'deposit'})
     trx_new.update({'amount':amount})
     trx_new['balance'] = trx_new.get('balance') + amount
     trx_cred = trx_new.copy()
@@ -104,6 +107,7 @@ def credit():
 
 def history():
     history = pd.DataFrame(trx_list)
+    history.index.name = 'trx #'
     print(history)
 
 def goodbye():
