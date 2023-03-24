@@ -19,6 +19,10 @@ filename = 'balance.txt'
 online = True
 
 # functions
+# handle commas
+def handle_commas(s):
+    return float(s.replace(',',''))
+
 def balance():
     if os.path.exists(filename) == False:
         with open(filename, 'w') as f:
@@ -33,7 +37,7 @@ def debit():
     while True:
         amount = input('\nHow much is the debit? $')
         try:
-            amount = float(amount)
+            amount = handle_commas(amount)
             if len(str(amount).split('.')[-1]) > 2:
                 print('Invalid amount! Please enter an amount.')
                 continue
@@ -56,7 +60,7 @@ def credit():
     while True:
         amount = input('\nHow much is the credit? $')
         try:
-            amount = float(amount)
+            amount = handle_commas(amount)
             if len(str(amount).split('.')[-1]) > 2:
                 print('Invalid amount! Please enter an amount.')
                 continue
